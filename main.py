@@ -7,6 +7,7 @@ from nba_api.stats.library.parameters import LeagueID
 from flask import Flask
 import requests
 
+
 # Function to get the game IDs for a specified day offset (default is yesterday)
 def get_game_ids(day_offset=-1):
     gamefinder = Scoreboard(
@@ -15,6 +16,7 @@ def get_game_ids(day_offset=-1):
     games_dict = gamefinder.get_normalized_dict()
     games = [game["GAME_ID"] for game in games_dict["GameHeader"]]
     return games
+
 
 # Function to get the game IDs for tomorrow games
 def get_tomorrows_game_ids():
@@ -32,12 +34,15 @@ def get_tomorrows_game_ids():
         games = []
 
     return games
+
+
 # TODO convert game_IDs to team_names, date & time, and getlogo
 
 # Function to get the logo path for a given team ID
 def getlogo(teamid):
     path = f"https://cdn.nba.com/logos/nba/{teamid}/global/D/logo.svg"
     return path
+
 
 # Function to process game data for a given game ID
 def process_game_data(game_id):
@@ -90,7 +95,8 @@ def process_game_data(game_id):
                     'fgp': f"{round(player['statistics']['fieldGoalsPercentage'] * 100, 2)}%",
                     'fouls': player['statistics']['foulsPersonal'],
                     'turnovers': player['statistics']['turnovers'],
-                    'minutes': str(timedelta(minutes=float(player['statistics']['minutes'].split('M')[1].split('S')[0])))
+                    'minutes': str(
+                        timedelta(minutes=float(player['statistics']['minutes'].split('M')[1].split('S')[0])))
                 }
                 stats.append(player_stats)
             return stats
@@ -115,7 +121,9 @@ def process_game_data(game_id):
         print(f"Error processing data for game {game_id}: {e}")
         return None
 
+
 app = Flask(__name__)
+
 
 @app.route('/')
 def give_stats():
@@ -132,11 +140,14 @@ def give_stats():
 
     return json_output
 
+
 # Endpoint to get game IDs for tomorrow
 @app.route('/next_games')
 def next_games():
     next_games_data = get_tomorrows_game_ids()
     return json.dumps(next_games_data, indent=2)
+
+
 # TODO update next_games to print team_name, date & time, logos instead of game_ids
 
 if __name__ == '__main__':
